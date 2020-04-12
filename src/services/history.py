@@ -29,14 +29,25 @@ import matplotlib.pyplot as plt
 #    """
 
 
-def getHistoryData(ticker):
+# Returns a df
+def get_history_data(ticker):
     ticker_df = yf.download(tickers=ticker, start='2020-01-01')
-    plotTitle = ticker + " stock price"
-    ticker_df.head()
-    print(ticker_df['Close'])
-    ticker_df['Close'].plot(title=plotTitle)
-    plt.show()
-    return "data"
-    # return ticker_df
+    # ticker_df.head()
+    print(ticker_df)
+    return ticker_df
+
 # stock_history = microsoft.stock
 # stock_history.head()
+
+
+def get_day_data(ticker):
+    ticker_df = yf.download(tickers=ticker, period="1d", interval="1m")
+    # print(ticker_df)
+
+    return ticker_df
+
+
+History = {
+    "get_history_data": get_history_data,
+    "get_day_data": get_day_data
+}
