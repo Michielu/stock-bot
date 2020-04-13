@@ -28,26 +28,51 @@ import matplotlib.pyplot as plt
 #            Optional. Round values to 2 decimal places?
 #    """
 
+valid_time_frames = {
+    "1d": "1m",
+    "5d": "5m",
+    "1mo": "15m",
+    "3mo": "30m",
+    "6mo": "1h",
+    "1y": "1h",
+    "2y": "90m",
+    "5y": "90m",
+    "10y": "5d",
+    "max": "5d"
+}
 
-# Returns a df
+
 def get_history_data(ticker):
     ticker_df = yf.download(tickers=ticker, start='2020-01-01')
     # ticker_df.head()
     print(ticker_df)
     return ticker_df
 
-# stock_history = microsoft.stock
-# stock_history.head()
-
 
 def get_day_data(ticker):
     ticker_df = yf.download(tickers=ticker, period="1d", interval="1m")
     # print(ticker_df)
+    return ticker_df
 
+
+def get_week_data(ticker):
+    ticker_df = yf.download(tickers=ticker, period="5d", interval="5m")
+    # print(ticker_df)
+    return ticker_df
+
+
+def get_data(ticker, time_frame):
+    if time_frame not in valid_time_frames:
+        return False
+    ticker_df = yf.download(tickers=ticker, period=time_frame,
+                            interval=valid_time_frames[time_frame])
+    print(ticker_df)
     return ticker_df
 
 
 History = {
     "get_history_data": get_history_data,
-    "get_day_data": get_day_data
+    "get_day_data": get_day_data,
+    "get_week_data": get_week_data,
+    "get_data": get_data
 }
