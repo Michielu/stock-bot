@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
+from data_obj.IAccount import IAccount
 
 # TODO change this to get RH account
 
 # Keep the same function names. Same as MyAccount
 
 
-class RHAccount:
+class RHAccount(IAccount):
     # {ticker: [num, average_price]}
     stock_own = {}
 
@@ -69,18 +70,18 @@ class RHAccount:
 
         self.buying_power += num*value
 
-        def owned_stock_info(self, ticker):
-            for stock_log in self.stocks_log_list:
-                if stock_log.get_ticker() == ticker:
-                    return stock_log.get_data()
+    def owned_stock_info(self, ticker):
+        for stock_log in self.stocks_log_list:
+            if stock_log.get_ticker() == ticker:
+                return stock_log.get_data()
 
-        def print_summary(self):
-            print("")
-            print("========================================")
-            print("Account Value: ", self.get_account_value())
-            print("Buying power: ", self.buying_power)
-            if self.stock_own:
-                stock_df = pd.DataFrame(self.stock_own)
-                print(stock_df)
-            print("========================================")
-            print("")
+    def print_summary(self):
+        print("")
+        print("========================================")
+        print("Account Value: ", self.get_account_value())
+        print("Buying power: ", self.buying_power)
+        if self.stock_own:
+            stock_df = pd.DataFrame(self.stock_own)
+            print(stock_df)
+        print("========================================")
+        print("")

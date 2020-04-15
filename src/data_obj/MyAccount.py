@@ -1,9 +1,10 @@
 import numpy as np
 import pandas as pd
 from data_obj.StockLog import StockLog
+from data_obj.IAccount import IAccount
 
 
-class MyAccount:
+class MyAccount(IAccount):
     # Array of StockLog objects
     stocks_log_list = []
 
@@ -18,7 +19,8 @@ class MyAccount:
 
         print("Invested : ", round(invested_in_stocks, 2),
               "Buying power: ", self.get_buying_power())
-        return round(invested_in_stocks + self.buying_power, 2)
+
+        return round(invested_in_stocks, 2) + self.buying_power
 
     def get_buying_power(self):
         return round(self.buying_power, 2)
@@ -39,7 +41,7 @@ class MyAccount:
 
         self.buying_power -= num*value
 
-        print("Buying ", num, " of ", ticker, " for ", value, "/each")
+        # print("Buying ", num, " of ", ticker, " for ", value, "/each")
         return "Bought"
 
     def sell_stock(self, ticker, num, value):
@@ -48,7 +50,7 @@ class MyAccount:
                 status = stock_log.sell_stock(num)
                 if stock_log.get_num_purchased() == 0:
                     self.stocks_log_list.remove(stock_log)
-                print(status)
+                # print(status)
 
         if status != "Successfully sold":
             raise Exception("Error Selling stock")
