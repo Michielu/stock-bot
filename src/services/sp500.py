@@ -17,8 +17,10 @@ def getSP500():
     values = corrected_table.values
     sp500 = []
     for x in values:
-        sp500.append(MyStock(x[0], x[1], x[3]))
+        if x[0].find(".") == -1:
+            sp500.append(MyStock(x[0], x[1], x[3]))
 
+    print(len(values), "to",  len(sp500))
     return sp500
 
 
