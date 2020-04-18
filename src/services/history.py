@@ -70,9 +70,23 @@ def get_data(ticker, time_frame):
     return ticker_df
 
 
+def get_closing_price(date, tickers):
+    closing_prices = {}
+    next_day = (pd.to_datetime(date) +
+                pd.Timedelta('1 day')).strftime('%Y-%m-%d')
+
+    all_history = yf.download(tickers=tickers, start=date, end=next_day)
+
+    for (columnName, columnData) in all_history["Close"].iteritems():
+        closing_prices[columnName] = columnData.values[0]
+
+    return closing_prices
+
+
 History = {
     "get_history_data": get_history_data,
     "get_day_data": get_day_data,
     "get_week_data": get_week_data,
-    "get_data": get_data
+    "get_data": get_data,
+    "get_closing_price": get_closing_price
 }
