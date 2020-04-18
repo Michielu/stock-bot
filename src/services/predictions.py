@@ -38,11 +38,17 @@ def get_predictions(my_stocks_arr):
 
 def calculate_ratio(predict, current):
     ratio_dic = {}
+    i = 0
+    num = len(predict)
+
     for t in predict.keys():
         ratio = predict[t][0]/current[t]
         # print(t, " : ", ratio)
         # if ratio > 1.01:
         ratio_dic[t] = ratio
+        i = i+1
+        print("Done", i, "/", num)
+
         # print("Ratio:", ratio)
     return ratio_dic
 
