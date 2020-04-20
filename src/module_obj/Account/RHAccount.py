@@ -1,6 +1,8 @@
+# pylint: disable=import-error
+
 import numpy as np
 import pandas as pd
-from data_obj.IAccount import IAccount
+from module_obj.Account.IAccount import IAccount
 
 # TODO change this to get RH account
 

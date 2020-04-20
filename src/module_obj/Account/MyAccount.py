@@ -1,7 +1,9 @@
+# pylint: disable=import-error
+
 import numpy as np
 import pandas as pd
-from data_obj.StockLog import StockLog
-from data_obj.IAccount import IAccount
+from module_obj.StockLog import StockLog
+from module_obj.Account.IAccount import IAccount
 
 
 class MyAccount(IAccount):

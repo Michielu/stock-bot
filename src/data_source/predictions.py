@@ -32,11 +32,10 @@ def get_predictions(my_stocks_arr):
 
     return prediction_info
 
-# Predict = {ticker: [prediction, error %, date]}
-# current= {ticker: current}
-
 
 def calculate_ratio(predict, current):
+    # Predict = {ticker: [prediction, error %, date]}
+    # current= {ticker: current}
     ratio_dic = {}
     i = 0
     num = len(predict)
@@ -45,18 +44,17 @@ def calculate_ratio(predict, current):
         ratio = predict[t][0]/current[t]
         # print(t, " : ", ratio)
         # if ratio > 1.01:
-        ratio_dic[t] = ratio
+        ratio_dic[t] = ratio*100
         i = i+1
         print("Done", i, "/", num)
 
         # print("Ratio:", ratio)
     return ratio_dic
 
-# Predict = {ticker: [prediction, error %, date]}
-# current= {ticker: current}
-
 
 def calculate_error(predict, current):
+    # Predict = {ticker: [prediction, error %, date]}
+    # current= {ticker: current}
     error_dic = {}
     for t in predict.keys():
         ratio = predict[t][1]

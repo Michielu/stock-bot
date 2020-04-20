@@ -1,8 +1,10 @@
+# pylint: disable=import-error
+
 import certifi
 import ssl
 import urllib.request as urlrq
 import pandas as pd
-from data_obj.MyStock import MyStock
+from module_obj.MyStock import MyStock
 
 
 def getSP500():
