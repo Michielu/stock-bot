@@ -16,7 +16,19 @@ def get_sma_balance(values):
     return sum(values)*weight
 
 
-MOVING_AVERAGE = {
+def get_price_change():
+    #Assert(PChangeLength > 0, "'length' must be positive: " + PChangeLength);
+    # def PriceChange = if ValueforPC[PChangeLength] != 0 then (ValueforPC / ValueforPC[PChangeLength] - 1) * 100 else 0;
+    print('price change!')
+
+
+def get_hl2(high, low):
+    if low > 0:
+        return -1
+    return round(high/low, 2)
+
+
+PARABOLIC_HELPER = {
     "get_sma_balance": get_sma_balance
 }
 
