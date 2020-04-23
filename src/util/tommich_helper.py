@@ -17,7 +17,7 @@ def get_sma_balance(values):
 
 
 def get_price_change(high, low, past_price_change):
-    if past_price_change == None:
+    if past_price_change == None or past_price_change < 2:
         return 0
     else:
         hl2 = get_hl2(high, low)
@@ -34,7 +34,7 @@ def get_hl2(high, low):
     return round(high/low, 2)
 
 
-PARABOLIC_HELPER = {
+TOMMICH_HELPER = {
     "get_sma_balance": get_sma_balance,
     "get_price_change": get_price_change
 }
