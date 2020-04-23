@@ -83,10 +83,28 @@ def get_closing_price(date, tickers):
     return closing_prices
 
 
+def parabotic_test_data(ticker, date):
+    # For Parabotic data
+    next_day = (pd.to_datetime(date) +
+                pd.Timedelta('1 day')).strftime('%Y-%m-%d')
+    ticker_df = yf.download(tickers=ticker, period="1d",
+                            interval="15m", start=date, end=next_day)
+    print(ticker_df)
+    return ticker_df
+
+
+def tommich_test_data(ticker):
+    ticker_df = yf.download(tickers=ticker, period="5d", interval="1m")
+    # print(ticker_df)
+    return ticker_df
+
+
 History = {
     "get_history_data": get_history_data,
     "get_day_data": get_day_data,
     "get_week_data": get_week_data,
     "get_data": get_data,
-    "get_closing_price": get_closing_price
+    "get_closing_price": get_closing_price,
+    "parabotic_test_data": parabotic_test_data,
+    "tommich_test_data": tommich_test_data
 }
