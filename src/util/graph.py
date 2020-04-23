@@ -31,12 +31,24 @@ def graph(data_dic):
     #     print(k, ": ", type(data_dic[k]), data_dic[k])
 
     df = pd.DataFrame(data_dic)
-    df.plot(title="Yada yada Graph title")
+    df.plot(title="Graph title")
+    plt.show()
+
+
+def scatter_plot_with_line(scatter_data, line_data):
+    df = pd.DataFrame(scatter_data, columns=['col', 'index'])
+
+    plt.scatter(y=df.col, x=df.index, c='green')
+    plt.plot(df.index, line_data, c="red", marker='.', linestyle=':')
+
     plt.show()
 
 
 Graph = {
     "basic_graph": basic_graph,
     "volume_graph": volume_graph,
-    "graph": graph
+    "graph": graph,
+    "scatter_plot_with_line": scatter_plot_with_line
+
+
 }
