@@ -16,9 +16,15 @@ class ParabolicState(Enum):
     CANNOT_BUY_OR_SELL = 3
 
 
+class FreezeState(Enum):
+    SELL_ALL = 1
+    WAIT = 2
+    NO_FREEZE = 3
+
+
 class Tommich(IStrategy):
     __last_closing_price = -1
-    __percentage_of_buying_power = .80
+    __percentage_of_buying_power = .9  # changing this causes some problems
 
     def __init__(self, account, ticker):
         self.account = account
@@ -26,7 +32,8 @@ class Tommich(IStrategy):
         self.__buying_state = ParabolicState.CAN_BUY_ONLY
         self.my_stock = MyStock(ticker, "Full name", "industry")
 
-    def next_data_point(self, ticker, row):
+    def next_data_point(self, ticker, row, date_time):
+
         # Future enhancement: store in appropriate one
         closing_price = math.ceil(row["Close"]*100)/100
         high_price = math.ceil(row["High"]*100)/100
@@ -34,30 +41,46 @@ class Tommich(IStrategy):
 
         self.my_stock.add_stock_price(closing_price, high_price, low_price)
 
-        simple_moving_avg_long = self.my_stock.get_sma()  # SMALong
-        last_simple_moving_avg = self.my_stock.get_previous_sma()  # SMALong[1]
-        price_change = self.my_stock.get_price_change()
-        last_price_change = self.my_stock.get_previous_price_change()
-        parabolic_trend = self.my_stock.get_parabolic_trend()
+        in_freeze = self.in_freeze(date_time)
 
-        if simple_moving_avg_long == None or last_simple_moving_avg == None or price_change == None or parabolic_trend == None:
-            print("n", end="", flush=True)
-            return None
-
-        if self.__buying_state == ParabolicState.CAN_BUY_ONLY:
-            print("b", end="", flush=True)
-            if closing_price > simple_moving_avg_long and self.__last_closing_price < last_simple_moving_avg:
-                print("BOUGHT!!")
-                self.__buying_state = ParabolicState.CAN_SELL_ONLY
-        elif self.__buying_state == ParabolicState.CAN_SELL_ONLY:
-            print("s", end="", flush=True)
-            if price_change < last_price_change and (closing_price < simple_moving_avg_long):
-                print("SOLD")
+        if in_freeze == FreezeState.WAIT:
+            print("in freeze")
+        elif in_freeze == FreezeState.SELL_ALL:
+            if self.__buying_state == ParabolicState.CAN_SELL_ONLY:
                 self.__buying_state = ParabolicState.CAN_BUY_ONLY
+                self.__sell(ticker, closing_price)
         else:
-            print("buy or sell")
+            simple_moving_avg_long = self.my_stock.get_sma()  # SMALong
+            # SMALong[1]
+            last_simple_moving_avg = self.my_stock.get_previous_sma()
+            roc = self.my_stock.get_roc()
+            last_roc = self.my_stock.get_previous_roc()
+            parabolic_trend = self.my_stock.get_parabolic_trend()
+
+            if simple_moving_avg_long == None or last_simple_moving_avg == None or roc == None or parabolic_trend == None:
+                print("n", end="", flush=True)
+                return None
+
+            if self.__buying_state == ParabolicState.CAN_BUY_ONLY:
+                print("b", end="", flush=True)
+                if closing_price > simple_moving_avg_long and self.__last_closing_price < last_simple_moving_avg:
+                    print("BOUGHT!!")
+                    self.__buying_state = ParabolicState.CAN_SELL_ONLY
+                    self.__buy(ticker, closing_price)
+            elif self.__buying_state == ParabolicState.CAN_SELL_ONLY:
+                print("s", end="", flush=True)
+                # print("s", roc, last_roc,
+                #       closing_price, simple_moving_avg_long)
+                if roc < last_roc and (closing_price < simple_moving_avg_long):
+                    print("SOLD")
+                    self.__buying_state = ParabolicState.CAN_BUY_ONLY
+                    self.__sell(ticker, closing_price)
+
+            else:
+                print("buy or sell")
 
         self.__last_closing_price = closing_price
+        return self.account.get_account_value()
 
     def __buy(self, ticker, price):
         buying_power = self.account.get_buying_power()
@@ -70,3 +93,20 @@ class Tommich(IStrategy):
         num_owned = self.account.owned_stock_info(ticker)['num']
         self.account.sell_stock(ticker, num_owned, price)
         # print("Sold, new account balance: ", self.account.get_buying_power())
+
+    def in_freeze(self, date):
+        # Don't trade first 15 minutes or last 15 minutes
+        # If own stock in last 15 minutes, sell them
+        print(date.hour, " ", date.minute)
+        # print(date.minute)
+        h = date.hour
+        m = date.minute
+
+        if h == 15 and m >= 50:
+            return FreezeState.SELL_ALL
+
+        if h == 9 and m < 40:
+            # Between 9:30et -9:40et
+            return FreezeState.WAIT
+
+        return FreezeState.NO_FREEZE
