@@ -16,16 +16,17 @@ def get_sma_balance(values):
     return sum(values)*weight
 
 
-def get_price_change(high, low, past_price_change):
-    if past_price_change == None or past_price_change < 2:
-        return 0
-    else:
-        hl2 = get_hl2(high, low)
-        if hl2 == None:
-            print("Error getting hl2")
-            return 0
+def get_roc(closing_price, history_closing, roc_length):
 
-        return (hl2/past_price_change - 1)*100
+    # print("PC: ", closing_price,  history_roc)
+    if roc_length < 0:
+        return None
+
+    if roc_length > len(history_closing):
+        return 1
+
+    else:
+        return (closing_price/history_closing[-roc_length] - 1) * 100
 
 
 def get_hl2(high, low):
@@ -36,7 +37,8 @@ def get_hl2(high, low):
 
 TOMMICH_HELPER = {
     "get_sma_balance": get_sma_balance,
-    "get_price_change": get_price_change
+    "get_roc": get_roc,
+    "get_hl2": get_hl2
 }
 
 # Tests

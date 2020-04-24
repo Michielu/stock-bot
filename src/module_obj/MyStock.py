@@ -11,9 +11,10 @@ class MyStock:
     history_price = []
     history_sma = []
     sma_window = 16
-    price_change_length = 14  # has to be a positive number
-    history_price_change = []
+    roc_length = 14  # has to be a positive number
+    history_roc = []
     history_parabolic_trend = []
+    history_hl2 = []
 
     def __init__(self, ticker, name, industry):
         self.ticker = ticker
@@ -61,9 +62,13 @@ class MyStock:
         if sma != None:
             self.history_sma.append(sma)
 
-        pc = self.gen_price_change(high, low)
+        # hl2 = self.gen_hl2(high, low)
+        # if hl2 != None:
+        #     self.history_hl2.append(hl2)
+
+        pc = self.gen_roc(price)
         if pc != None:
-            self.history_price_change.append(pc)
+            self.history_roc.append(pc)
 
         self.history_parabolic_trend.append(
             self.ParabolicTrend.next(high, low))
@@ -85,24 +90,25 @@ class MyStock:
             return self.history_sma[-2]
         return None
 
-    def gen_price_change(self, high, low):
-        # Test what happens when price_change_length gets an out of index value
-        past_price_change = 0
-        if self.price_change_length <= len(self.history_price_change):
-            past_price_change = self.history_price_change[-self.price_change_length]
-        else:
-            past_price_change = None
+    # def gen_hl2(self, high, low):
+    #     return TOMMICH_HELPER["get_hl2"](high, low)
 
-        return TOMMICH_HELPER["get_price_change"](high, low, past_price_change)
+    def gen_roc(self, closing_price):
 
-    def get_price_change(self):
-        if len(self.history_price_change) > 0:
-            return self.history_price_change[-1]
+        roc = TOMMICH_HELPER["get_roc"](
+            closing_price, self.history_price, self.roc_length)
+        # print("Past rate of change :", roc)
+
+        return roc
+
+    def get_roc(self):
+        if len(self.history_roc) > 0:
+            return self.history_roc[-1]
         return None
 
-    def get_previous_price_change(self):
-        if len(self.history_price_change) > 1:
-            return self.history_price_change[-2]
+    def get_previous_roc(self):
+        if len(self.history_roc) > 1:
+            return self.history_roc[-2]
         return None
 
     def get_parabolic_trend(self):
