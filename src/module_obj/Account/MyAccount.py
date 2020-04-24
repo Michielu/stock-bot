@@ -14,13 +14,9 @@ class MyAccount(IAccount):
         self.buying_power = account_value
 
     def get_account_value(self):
-        # Iterate through stock
         invested_in_stocks = 0
         for s in self.stocks_log_list:
             invested_in_stocks += s.get_total_invested()
-
-        print("Invested : ", round(invested_in_stocks, 2),
-              "Buying power: ", self.get_buying_power())
 
         return round(invested_in_stocks, 2) + self.buying_power
 
@@ -31,7 +27,7 @@ class MyAccount(IAccount):
     def buy_stock(self, ticker, num, value):
         # Check if enough buying power
         if self.buying_power < num*value:
-            return "Not enough buying power"
+            raise Exception("Error buying stock: Not enough buying power")
 
         # Check if previous own stock
         for stock_log in self.stocks_log_list:
@@ -43,7 +39,6 @@ class MyAccount(IAccount):
 
         self.buying_power -= num*value
 
-        # print("Buying ", num, " of ", ticker, " for ", value, "/each")
         return "Bought"
 
     def sell_stock(self, ticker, num, value):
