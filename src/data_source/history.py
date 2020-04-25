@@ -44,20 +44,16 @@ valid_time_frames = {
 
 def get_history_data(ticker):
     ticker_df = yf.download(tickers=ticker, start='2020-01-01')
-    # ticker_df.head()
-    print(ticker_df)
     return ticker_df
 
 
 def get_day_data(ticker):
     ticker_df = yf.download(tickers=ticker, period="1d", interval="1m")
-    # print(ticker_df)
     return ticker_df
 
 
 def get_week_data(ticker):
     ticker_df = yf.download(tickers=ticker, period="5d", interval="5m")
-    # print(ticker_df)
     return ticker_df
 
 
@@ -66,7 +62,6 @@ def get_data(ticker, time_frame):
         return False
     ticker_df = yf.download(tickers=ticker, period=time_frame,
                             interval=valid_time_frames[time_frame])
-    print(ticker_df)
     return ticker_df
 
 
@@ -89,13 +84,11 @@ def parabotic_test_data(ticker, date):
                 pd.Timedelta('1 day')).strftime('%Y-%m-%d')
     ticker_df = yf.download(tickers=ticker, period="1d",
                             interval="15m", start=date, end=next_day)
-    print(ticker_df)
     return ticker_df
 
 
 def tommich_test_data(ticker):
     ticker_df = yf.download(tickers=ticker, period="5d", interval="1m")
-    # print(ticker_df)
     return ticker_df
 
 

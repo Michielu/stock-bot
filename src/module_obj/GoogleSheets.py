@@ -166,10 +166,6 @@ class GoogleSheets:
             dic[stock[0]] = stock[1:]
             tickers.append(stock[0])
 
-        # print("DIC: ", dic)
-        # print("Tickers: ", tickers)
-
-        # History["get_closing_price"]("2020-04-17", tickers)
         closing_prices = History["get_closing_price"](sheet_name, tickers)
 
         for t in tickers:
@@ -180,10 +176,7 @@ class GoogleSheets:
             # print(type(float(dic[t][0])), type(closing_prices[t]))
             dic[t][5] = closing_prices[t]/float(dic[t][0]) * 100
 
-        print("DIC AFTER:", dic)
         sheet_value = Conversion["dic_to_sheets"](dic, keys)
-        print("sheet value: ", sheet_value)
         self.write_values(sheet_value, sheet_name)
 
     # Add
-

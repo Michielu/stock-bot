@@ -1,8 +1,8 @@
 # Test Strat
 # Sells all when stock goes down
 # Buys when stock goes up
-# Initial: just one ticker.
-# Later, multiple tickers
+# Current: just one ticker.
+import math
 
 
 class PracticeStrat:
@@ -14,10 +14,12 @@ class PracticeStrat:
         self.account = account
         self.ticker = ticker
 
-    def next_data_point(self, ticker, price):
+    def next_data_point(self, ticker, row):
+        price = math.ceil(row["Close"]*100)/100
+
         if self.last_price == -1:
             self.last_price = price
-            return
+            return self.account.get_account_value()
 
         if price > self.last_price:
             if self.__holding_stock == False:
