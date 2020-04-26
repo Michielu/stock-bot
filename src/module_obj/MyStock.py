@@ -1,4 +1,5 @@
-# pylint disable=no-name-in-module
+# pylint: disable=no-name-in-module, import-error
+
 import numpy as np
 from util.tommich_helper import TOMMICH_HELPER
 from module_obj.ParabolicTrend import ParabolicTrend

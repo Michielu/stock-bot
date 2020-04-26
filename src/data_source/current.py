@@ -13,11 +13,7 @@ def get_current_price(ticker):
 def get_current_price_list(tickers):
     prices = {}
     for t in tickers:
-        # print(t)
-        # print("current: ", prices)
         prices[t] = si.get_live_price(t)
-        # prices.append(si.get_live_price(t))
-    # print(prices)
     return prices
 
 
