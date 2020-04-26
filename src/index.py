@@ -28,7 +28,7 @@ time_frame = "5d"
 ############### Choose Account ###############
 account = MyAccount(2500)
 if real_brokerage:
-    account = RHAccount(20000)  # TODO won't be inputting value
+    account = RHAccount("mich.menning@gmail.com")
 
 ############### Choose Strategy ###############
 # strat = PracticeStrat(account, "SPY")
