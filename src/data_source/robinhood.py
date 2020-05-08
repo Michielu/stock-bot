@@ -33,6 +33,12 @@ class Robinhood:
         except:
             return 0
 
+    def get_stock_info(self, ticker):
+        return self.my_stocks[ticker]
+
+    def get_all_stock_info(self):
+        return self.my_stocks
+
     def cancel_all_orders(self):
         return r.cancel_all_stock_orders()
 
@@ -48,23 +54,15 @@ class Robinhood:
         return buy_status
 
     def order_sell_limit(self, symbol, quantity, limitPrice):
-        sell_status = r.order_buy_limit(symbol, quantity, limitPrice)
+        sell_status = r.order_sell_limit(symbol, quantity, limitPrice)
         # Test if stocks are updated immediately or nah
         self.my_stocks = self.refresh_holdings()
         return sell_status
 
     def order_sell_market(self, symbol, quantity):
-        sell_status = r.order_buy_market(symbol, quantity)
+        sell_status = r.order_sell_market(symbol, quantity)
         self.my_stocks = self.refresh_holdings()
         return sell_status
 
     def order_sell_market_all(self, symbol):
         return self.order_sell_market(symbol, self.get_num_stock_own(symbol))
-
-
-rob = Robinhood("mich.menning@gmail.com")
-print(rob.get_buying_power())
-# print(rob.get_total_equity())
-# print("IBIO owns: ", rob.get_num_stock_own("IBIO"))
-# print("SPY owns: ", rob.get_num_stock_own("SPY"))
-# print("SPXS owns: ", rob.get_num_stock_own("SPXS"))
