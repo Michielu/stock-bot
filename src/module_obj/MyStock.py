@@ -1,15 +1,16 @@
 # pylint: disable=no-name-in-module, import-error
 
 import numpy as np
+import math
 from util.tommich_helper import TOMMICH_HELPER
 from module_obj.ParabolicTrend import ParabolicTrend
 
 
 class MyStock:
-    prediction_price = -1
-    prediction_error_chance = -1
-    prediction_date = -1
-    history_price = []
+    history_price_open = []
+    history_price_high = []
+    history_price_low = []
+    history_price_close = []
     history_sma = []
     sma_window = 16
     roc_length = 14  # has to be a positive number
@@ -17,69 +18,52 @@ class MyStock:
     history_parabolic_trend = []
     history_hl2 = []
 
-    def __init__(self, ticker, name, industry):
+    def __init__(self, ticker):
         self.ticker = ticker
-        self.name = name
-        self.industry = industry
         self.ParabolicTrend = ParabolicTrend(.05)
 
     def get_ticker(self):
         return self.ticker
 
-    def get_name(self):
-        return self.name
-
-    def get_industry(self):
-        return self.industry
-
-    def set_predictions(self, p):
-        self.predictionPrice = p[0]
-        self.predictionErrorChance = p[1]
-        self.predictionDate = p[2]
-
-    def get_prediction_price(self):
-        return self.predictionPrice
-
-    def get_prediction_error_chance(self):
-        return self.predictionErrorChance
-
-    def get_prediction_date(self):
-        return self.predictionDate
-
-    def get_history_price(self):
-        return self.history_price
-
     def get_history_sma(self):
         return self.history_sma
 
-    def get_data(self):
-        return np.array([self.ticker, self.name, self.industry, self.prediction_price, self.prediction_error_chance, self.prediction_date])
-
-    def add_stock_price(self, price, high, low):
+    def add_stock_price(self, price_row):
         # dataframe: "Open", "High", "Low", "Close", "Adj Close", "Volumn"
-        self.history_price.append(price)
+        # TODO store
+        # self.history_price_open
+        open_price = math.ceil(price_row["Open"]*100)/100
+        high_price = math.ceil(price_row["High"]*100)/100
+        low_price = math.ceil(price_row["Low"]*100)/100
+        closing_price = math.ceil(price_row["Close"]*100)/100
+        # print(open_price, high_price, low_price, closing_price, price_row)
+        # self.history_price.append(price)
+        self.history_price_open.append(open_price)
+        self.history_price_high.append(high_price)
+        self.history_price_low.append(low_price)
+        self.history_price_close.append(closing_price)
 
         sma = self.gen_sma(self.sma_window)
         if sma != None:
             self.history_sma.append(sma)
 
-        # hl2 = self.gen_hl2(high, low)
+        # hl2 = self.gen_hl2(high_price, low_price)
         # if hl2 != None:
         #     self.history_hl2.append(hl2)
 
-        pc = self.gen_roc(price)
+        pc = self.gen_roc(closing_price)
         if pc != None:
             self.history_roc.append(pc)
 
         self.history_parabolic_trend.append(
-            self.ParabolicTrend.next(high, low))
+            self.ParabolicTrend.next(high_price, low_price))
 
     def gen_sma(self, window):
         # TODO maybe store some placeholder values in sma
-        if len(self.history_price) < window:
+        if len(self.history_price_close) < window:
             return None
 
-        return TOMMICH_HELPER["get_sma_balance"](self.history_price[-window:])
+        return TOMMICH_HELPER["get_sma_balance"](self.history_price_close[-window:])
 
     def get_sma(self):
         if len(self.history_sma) > 0:
@@ -97,7 +81,7 @@ class MyStock:
     def gen_roc(self, closing_price):
 
         roc = TOMMICH_HELPER["get_roc"](
-            closing_price, self.history_price, self.roc_length)
+            closing_price, self.history_price_close, self.roc_length)
         # print("Past rate of change :", roc)
 
         return roc
@@ -116,5 +100,8 @@ class MyStock:
         if len(self.history_parabolic_trend) > 0:
             return self.history_parabolic_trend[-1]
         return None
+
+    # def get_exp_average(self):
+    #     return TOMMICH_HELPER["get_triple_exp_average"]()
 
 # Test
