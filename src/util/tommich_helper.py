@@ -1,12 +1,14 @@
 import numpy as np
+import pandas as pd
 
 data_set = [1, 5, 7, 8, 2, 4, 12, 6, 92, 2, 0]
+data_set2 = [1, 2]
 
 
 def simple_moving_avg(values, window):
     # window = len(values)
     weights = np.repeat(1.0, window)/window
-    #if window is 3: weights = [.33,.33,.33]
+    # if window is 3: weights = [.33,.33,.33]
     smas = np.convolve(values, weights, 'valid')
     return smas
 
@@ -35,12 +37,66 @@ def get_hl2(high, low):
     return round(high/low, 2)
 
 
+def get_triple_exp_average(data, window):
+    # data: array
+    # 3 * ema1 - 3 * ema2 + ema3;
+    ea1 = calc_triple_exp_average(data, window)
+    ea2 = calc_triple_exp_average(ea1, window)
+    ea3 = calc_triple_exp_average(ea2, window)
+
+    for i in range(len(data)):
+        ea3[i] = 3*ea1[i] - 3*ea2[i] + ea3[i]
+
+    return ea3
+
+
+def calc_triple_exp_average(data, window):
+    d = {'col1': data}
+    df = pd.DataFrame(data=d)
+    df["expAvg"] = df['col1'].ewm(span=window, adjust=True).mean()
+
+    return df['expAvg'].values
+
+
+def calc_trend_quality():
+    # ThinkOrSwim's TrendQuality
+    # Don't change
+    trend_length = 4
+    correction_factor = 2
+
+    smf = 2 / (1 + trend_length)
+    # TODO store reversal in myStock and pass them in
+    # reversal = TrendPeriods(fast_length, slow_length)
+    # cpc = if isNaN(reversal[1]) then 0 else if reversal[1] != reversal then 0 else cpc[1] + close - close[1]
+    # trend = if isNaN(reversal[1]) then 0 else if reversal[1] != reversal then 0 else trend[1] * (1 - smf) + cpc * smf
+
+    # diff = AbsValue(cpc - trend)
+    # noise = correctionFactor * Average(diff, noiseLength)
+
+
+def calc_trend_period(close, fast_length, slow_length):
+    # Sign: Returns the algebraic sign of a number: 1 if the number is positive, 0 if zero and -1 if negative.
+    # sign(ExpAverage(close, fastLength) - ExpAverage(close, slowLength))
+    fast_tp = calc_triple_exp_average(close[-fast_length:], fast_length)
+    slow_tp = calc_triple_exp_average(close[-slow_length:], slow_length)
+    period = fast_tp[-1]-slow_tp[-1]
+    if period > 0:
+        return 1
+    elif period == 0:
+        return 0
+    else:
+        return -1
+
+
 TOMMICH_HELPER = {
     "get_sma_balance": get_sma_balance,
     "get_roc": get_roc,
-    "get_hl2": get_hl2
+    "get_hl2": get_hl2,
+    "get_triple_exp_average": get_triple_exp_average,
+    "calc_trend_period": calc_trend_period
 }
 
 # Tests
 # print("hello")
 # print("SMA: ", simple_moving_avg(data_set, 3))
+# print(get_triple_exp_average(data_set2, 3))

@@ -25,6 +25,9 @@ class MyStock:
     history_tema_long = []
     history_tema_boundry = []
     history_trend_quality = []
+    fast_length = 7  # TrendQuality (1-50), first "fast_length"
+    slow_length = 15
+    history_reversal = []
 
     def __init__(self, ticker):
         self.ticker = ticker
@@ -75,6 +78,8 @@ class MyStock:
             self.history_price_close, self.tema_long))
         self.history_tema_boundry.append(
             self.gen_exp_average(self.history_price_close, self.tema_boundry))
+
+        self.history_reversal.append(self.gen_reversal())
 
     def gen_sma(self, window):
         # TODO maybe store some placeholder values in sma
@@ -139,6 +144,15 @@ class MyStock:
 
     def get_tema_boundry(self):
         return self.history_tema_boundry[-1]
+
+    def gen_reversal(self):
+        hist_length = len(self.history_price_close)
+        fast_l = self.fast_length if hist_length >= self.fast_length else hist_length
+        slow_l = self.slow_length if hist_length >= self.slow_length else hist_length
+        return TOMMICH_HELPER["calc_trend_period"](self.history_price_close, fast_l, slow_l)
+
+    def get_reversal(self):
+        return self.history_reversal[-1]
 
     # def gen_trend_quality(self):
     #     noise = self.correction_factor *
