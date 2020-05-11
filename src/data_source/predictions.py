@@ -17,9 +17,9 @@ def get_predictions(my_stocks_arr):
         future_prediction = []
         try:
             future_prediction = Stocker.predict.tomorrow(ti)
-        except:
+        except Exception as e:
             i += 1
-            print("Error with ", ti)
+            print("Error with ", ti, e)
             continue
 
         # todo: check if failed with user so it stops this
@@ -27,7 +27,6 @@ def get_predictions(my_stocks_arr):
         # company.set_predictions(future_prediction)
         i = i+1
         prediction_info[ti] = future_prediction
-        print(ti, " ", future_prediction)
         print("Done", i, "/", num)
 
     return prediction_info
