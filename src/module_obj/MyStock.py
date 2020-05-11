@@ -24,10 +24,16 @@ class MyStock:
     history_tema_short = []
     history_tema_long = []
     history_tema_boundry = []
-    history_trend_quality = []
     fast_length = 7  # TrendQuality (1-50), first "fast_length"
     slow_length = 15
+    trend_length = 4
     history_reversal = []
+    previous_cpc = 0  # don't change
+    previous_trend = 1  # don't change
+    noise_length = 250
+    correction_factor = 2
+    history_trend_quality = []
+    history_trend_quality_diff = []
 
     def __init__(self, ticker):
         self.ticker = ticker
@@ -79,7 +85,11 @@ class MyStock:
         self.history_tema_boundry.append(
             self.gen_exp_average(self.history_price_close, self.tema_boundry))
 
+        # Won't need this if not TQ
         self.history_reversal.append(self.gen_reversal())
+
+        # Uses history_reversal
+        self.history_trend_quality.append(self.gen_trend_quality())
 
     def gen_sma(self, window):
         # TODO maybe store some placeholder values in sma
@@ -146,15 +156,47 @@ class MyStock:
         return self.history_tema_boundry[-1]
 
     def gen_reversal(self):
+        # If no TQ, not needed
         hist_length = len(self.history_price_close)
         fast_l = self.fast_length if hist_length >= self.fast_length else hist_length
         slow_l = self.slow_length if hist_length >= self.slow_length else hist_length
         return TOMMICH_HELPER["calc_trend_period"](self.history_price_close, fast_l, slow_l)
 
     def get_reversal(self):
+        # If not TQ, don't need this
         return self.history_reversal[-1]
 
-    # def gen_trend_quality(self):
-    #     noise = self.correction_factor *
+    def gen_trend_quality(self):
+        # cpc and trend, getting different values. Not making sense.
+        smf = 2 / (1 + self.trend_length)
+        reversal = self.get_reversal()
+        prev_reversal = - \
+            1 if len(self.history_reversal) < 2 else self.history_reversal[-2]
+        prev_close = self.history_price_close[-1] if len(
+            self.history_price_close) < 2 else self.history_price_close[-2]
+
+        if prev_reversal != -1 and prev_reversal != reversal:
+            cpc = 0
+            trend = 0
+        else:
+
+            cpc = self.previous_cpc + self.history_price_close[-1] - prev_close
+            # print("V: ", cpc, self.previous_cpc,
+            #       self.history_price_close[-1], prev_close)
+            trend = self.previous_trend * (1-smf) + cpc * smf
+
+        # self.history_trend_quality_diff.append(cpc - trend)
+        # print("TQ_DIFF", self.history_trend_quality_diff,
+            #   len(self.history_trend_quality_diff))
+        # noise = self.correction_factor * \
+            # TOMMICH_HELPER["get_sma_balance"](
+            # self.history_trend_quality_diff, self.noise_length)
+        # print("N:", noise)
+        self.previous_cpc = cpc
+        self.previous_trend = trend
+        # if noise == 0:
+        #     return 0
+
+        return trend
 
 # Test

@@ -13,9 +13,10 @@ def simple_moving_avg(values, window):
     return smas
 
 
-def get_sma_balance(values):
-    weight = 1/len(values)
-    return sum(values)*weight
+def get_sma_balance(values, window=-1):
+    new_window = window if window > len(values) else len(values)
+    weight = 1/new_window
+    return sum(values[new_window:])*weight
 
 
 def get_roc(closing_price, history_closing, roc_length):
@@ -80,10 +81,8 @@ def calc_trend_period(close, fast_length, slow_length):
     fast_tp = calc_triple_exp_average(close[-fast_length:], fast_length)
     slow_tp = calc_triple_exp_average(close[-slow_length:], slow_length)
     period = fast_tp[-1]-slow_tp[-1]
-    if period > 0:
+    if period >= 0:
         return 1
-    elif period == 0:
-        return 0
     else:
         return -1
 
