@@ -20,7 +20,7 @@ def getSP500():
     sp500 = []
     for x in values:
         if x[0].find(".") == -1:
-            sp500.append(MyStock(x[0], x[1], x[3]))
+            sp500.append(MyStock(x[0]))
 
     print(len(values), "to",  len(sp500))
     return sp500
