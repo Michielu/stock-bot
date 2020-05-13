@@ -13,7 +13,7 @@ class MyStock:
     history_price_close = []
     history_sma = []
     sma_window = 16
-    roc_length = 14  # has to be a positive number
+    roc_length = 2  # has to be a positive number
     history_roc = []
     history_parabolic_trend = []
     history_hl2 = []
@@ -65,7 +65,7 @@ class MyStock:
         self.history_ohlc4.append(self.gen_ohlc4(
             open_price, high_price, low_price, closing_price))
 
-        pc = self.gen_roc(closing_price)
+        pc = self.gen_roc()
         if pc != None:
             self.history_roc.append(pc)
 
@@ -73,9 +73,9 @@ class MyStock:
             self.ParabolicTrend.next(high_price, low_price))
 
         self.history_tema_short.append(self.gen_exp_average(
-            self.history_price_close, self.tema_short))
+            self.history_ohlc4, self.tema_short))
         self.history_tema_long.append(self.gen_exp_average(
-            self.history_price_close, self.tema_long))
+            self.history_ohlc4, self.tema_long))
         self.history_tema_boundry.append(
             self.gen_exp_average(self.history_price_close, self.tema_boundry))
 
@@ -107,9 +107,9 @@ class MyStock:
     def get_ohlc4(self):
         return self.history_ohlc4[-1]
 
-    def gen_roc(self, closing_price):
+    def gen_roc(self):
         roc = TOMMICH_HELPER["get_roc"](
-            closing_price, self.history_price_close, self.roc_length)
+            self.history_price_close, self.roc_length)
         # print("Past rate of change :", roc)
 
         return roc
@@ -118,6 +118,11 @@ class MyStock:
         if len(self.history_roc) >= abs(previous):
             return self.history_roc[previous]
         return None
+
+    def get_difference_roc(self):
+        if len(self.history_roc) > 2:
+            return self.history_roc[-1] - self.history_roc[-2]
+        return 0
 
     def get_previous_roc(self):
         if len(self.history_roc) > 1:
@@ -153,6 +158,22 @@ class MyStock:
 
     def get_reversal(self):
         return self.history_reversal[-1]
+
+    def reset_all(self):
+        self.history_price_open = []
+        self.history_price_high = []
+        self.history_price_low = []
+        self.history_price_close = []
+        self.history_sma = []
+        self.history_roc = []
+        self.history_parabolic_trend = []
+        self.history_hl2 = []
+        self.history_ohlc4 = []
+        self.history_tema_short = []
+        self.history_tema_long = []
+        self.history_tema_boundry = []
+        self.history_trend_quality = []
+        self.history_reversal = []
 
     # def gen_trend_quality(self):
     #     noise = self.correction_factor *
