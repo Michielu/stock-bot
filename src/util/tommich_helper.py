@@ -18,17 +18,17 @@ def get_sma_balance(values):
     return sum(values)*weight
 
 
-def get_roc(closing_price, history_closing, roc_length):
-
+def get_roc(history_closing, roc_length):
+    # ThinkorSwim "2"(roc_length) gets [...,6,7] Our history currently has [...,6,7,8]
+    new_length = roc_length + 1
     # print("PC: ", closing_price,  history_roc)
     if roc_length < 0:
         return None
 
-    if roc_length > len(history_closing):
-        return 1
-
+    if new_length > len(history_closing):
+        return 0
     else:
-        return (closing_price/history_closing[-roc_length] - 1) * 100
+        return ((history_closing[-1]/history_closing[-new_length]) - 1) * 100
 
 
 def get_hl2(high, low):
