@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 
 data_set = [1, 5, 7, 8, 2, 4, 12, 6, 92, 2, 0]
-data_set2 = [1, 2]
+data_set2 = [1, 2, 3]
+data_set3 = [1, 1, 1, 1, 11, 22, 33, 444, 55]
 
 
 def simple_moving_avg(values, window):
@@ -16,6 +17,13 @@ def simple_moving_avg(values, window):
 def get_sma_balance(values):
     weight = 1/len(values)
     return sum(values)*weight
+
+
+def get_weighted_moving_avg(values, length):
+    num_avalable = len(values) if len(values) < length else length
+    weights = list(range(1, num_avalable+1))
+    wmas = np.average(values[-num_avalable:], weights=weights)
+    return wmas
 
 
 def get_roc(history_closing, roc_length):
@@ -90,6 +98,7 @@ def calc_trend_period(close, fast_length, slow_length):
 
 TOMMICH_HELPER = {
     "get_sma_balance": get_sma_balance,
+    "get_weighted_moving_avg": get_weighted_moving_avg,
     "get_roc": get_roc,
     "get_hl2": get_hl2,
     "get_triple_exp_average": get_triple_exp_average,
@@ -98,5 +107,6 @@ TOMMICH_HELPER = {
 
 # Tests
 # print("hello")
-# print("SMA: ", simple_moving_avg(data_set, 3))
+print("SMA: ", simple_moving_avg(data_set3, 3))
 # print(get_triple_exp_average(data_set2, 3))
+print("WMA:", get_weighted_moving_avg(data_set3, 5))
