@@ -12,7 +12,9 @@ class MyStock:
     history_price_low = []
     history_price_close = []
     history_sma = []
+    history_wma = []
     sma_window = 16
+    wma_window = 10
     roc_length = 2  # has to be a positive number
     history_roc = []
     history_parabolic_trend = []
@@ -61,6 +63,7 @@ class MyStock:
         hl2 = self.gen_hl2(high_price, low_price)
         if hl2 != None:
             self.history_hl2.append(hl2)
+            self.history_wma.append(self.gen_wma())
 
         self.history_ohlc4.append(self.gen_ohlc4(
             open_price, high_price, low_price, closing_price))
@@ -97,6 +100,14 @@ class MyStock:
         if len(self.history_sma) > 1:
             return self.history_sma[-2]
         return None
+
+    def gen_wma(self):
+        if len(self.history_hl2) > 0:
+            return TOMMICH_HELPER["get_weighted_moving_avg"](self.history_hl2, self.wma_window)
+        raise ValueError('self.history_hl2 can never be empty')
+
+    def get_wma(self):
+        return self.history_wma[-1]
 
     def gen_hl2(self, high, low):
         return TOMMICH_HELPER["get_hl2"](high, low)
@@ -174,6 +185,7 @@ class MyStock:
         self.history_tema_boundry = []
         self.history_trend_quality = []
         self.history_reversal = []
+        self.history_wma = []
 
     # def gen_trend_quality(self):
     #     noise = self.correction_factor *

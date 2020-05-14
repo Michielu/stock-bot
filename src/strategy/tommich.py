@@ -44,10 +44,10 @@ class Tommich(IStrategy):
         if in_freeze == FreezeState.WAIT:
             print("in freeze")
         elif in_freeze == FreezeState.SELL_ALL:
+            self.my_stock.reset_all()
             if self.__buying_state == ParabolicState.CAN_SELL_ONLY:
                 self.__buying_state = ParabolicState.CAN_BUY_ONLY
                 self.__sell(ticker, closing_price)
-                self.my_stock.reset_all()
         else:
             TEMA_short = self.my_stock.get_tema_short()  # +1
             TEMA_long = self.my_stock.get_tema_long()  # +1
@@ -57,34 +57,27 @@ class Tommich(IStrategy):
             roc = self.my_stock.get_roc()  # +1
             difference_roc = self.my_stock.get_difference_roc()  # +1
             last_roc = self.my_stock.get_previous_roc()  # +1
+            wma = self.my_stock.get_wma()
 
             # Old values
             # simple_moving_avg_long = self.my_stock.get_sma()  # SMALong
             #last_simple_moving_avg = self.my_stock.get_previous_sma()
             #parabolic_trend = self.my_stock.get_parabolic_trend()
 
-            if TEMA_short == None or TEMA_long == None or TEMA_long_previous == None or difference_roc == None or TEMA_boundry == None or roc == None or TEMA_short_previous or TEMA_long_previous == None:
-                print("n", end="", flush=True)
-                # return None #TODO why do I have this None??? -- to not make rash decision?
+            # if TEMA_short == None or TEMA_long == None or TEMA_long_previous == None or difference_roc == None or TEMA_boundry == None or roc == None or TEMA_short_previous or TEMA_long_previous == None:
+            #     print("n", end="", flush=True)
+            # return None #TODO why do I have this None??? -- to not make rash decision?
 
             if self.__buying_state == ParabolicState.CAN_BUY_ONLY:
-                print("b", end="", flush=True)
+                # print("b", end="", flush=True)
                 if TEMA_short > TEMA_long and TEMA_short_previous <= TEMA_long_previous and TEMA_short <= TEMA_boundry and (roc >= (last_roc * self.__roc_amplifier)) and (difference_roc >= self.__diff_roc_value_buy or difference_roc <= -self.__diff_roc_value_buy):
-                    print("BOUGHT!!")
+                    # print("BOUGHT!!")
                     self.__buying_state = ParabolicState.CAN_SELL_ONLY
                     self.__buy(ticker, closing_price)
             elif self.__buying_state == ParabolicState.CAN_SELL_ONLY:
-                print("s", end="", flush=True)
-                # print("s", roc, last_roc,
-                #       closing_price, simple_moving_avg_long)
-                # Need WMA1
-                # if (TEMA_short < TEMA_long and TEMA_short < WMA1)
-
-            #     (TEMAShort < TEMALong and TEMAShort < WMA1)
-            # or ((DifferencePC >= DPCValue or DifferencePC <= -DPCValue)and PriceChange < PriceChange[1])
-
-                if TEMA_short < TEMA_long or ((difference_roc >= self.__diff_roc_value_buy or difference_roc <= -self.__diff_roc_value_buy) and roc < last_roc):
-                    print("SOLD")
+                # print("s", end="", flush=True)
+                if (TEMA_short < TEMA_long and wma) or ((difference_roc >= self.__diff_roc_value_buy or difference_roc <= -self.__diff_roc_value_buy) and roc < last_roc):
+                    # print("SOLD")
                     self.__buying_state = ParabolicState.CAN_BUY_ONLY
                     self.__sell(ticker, closing_price)
 
