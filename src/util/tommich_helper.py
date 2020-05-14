@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 
 data_set = [1, 5, 7, 8, 2, 4, 12, 6, 92, 2, 0]
-data_set2 = [1, 2]
+data_set2 = [1, 2, 3]
+data_set3 = [1, 1, 1, 1, 11, 22, 33, 444, 55]
 
 
 def simple_moving_avg(values, window):
@@ -19,23 +20,30 @@ def get_sma_balance(values, window=-1):
     return sum(values[new_window:])*weight
 
 
-def get_roc(closing_price, history_closing, roc_length):
+def get_weighted_moving_avg(values, length):
+    num_avalable = len(values) if len(values) < length else length
+    weights = list(range(1, num_avalable+1))
+    wmas = np.average(values[-num_avalable:], weights=weights)
+    return wmas
 
+
+def get_roc(history_closing, roc_length):
+    # ThinkorSwim "2"(roc_length) gets [...,6,7] Our history currently has [...,6,7,8]
+    new_length = roc_length + 1
     # print("PC: ", closing_price,  history_roc)
     if roc_length < 0:
         return None
 
-    if roc_length > len(history_closing):
-        return 1
-
+    if new_length > len(history_closing):
+        return 0
     else:
-        return (closing_price/history_closing[-roc_length] - 1) * 100
+        return ((history_closing[-1]/history_closing[-new_length]) - 1) * 100
 
 
 def get_hl2(high, low):
     if low == 0:
         return None
-    return round(high/low, 2)
+    return round((high+low)/2, 2)
 
 
 def get_triple_exp_average(data, window):
@@ -89,13 +97,9 @@ def calc_trend_period(close, fast_length, slow_length):
 
 TOMMICH_HELPER = {
     "get_sma_balance": get_sma_balance,
+    "get_weighted_moving_avg": get_weighted_moving_avg,
     "get_roc": get_roc,
     "get_hl2": get_hl2,
     "get_triple_exp_average": get_triple_exp_average,
     "calc_trend_period": calc_trend_period
 }
-
-# Tests
-# print("hello")
-# print("SMA: ", simple_moving_avg(data_set, 3))
-# print(get_triple_exp_average(data_set2, 3))

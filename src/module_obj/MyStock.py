@@ -12,8 +12,10 @@ class MyStock:
     history_price_low = []
     history_price_close = []
     history_sma = []
+    history_wma = []
     sma_window = 16
-    roc_length = 14  # has to be a positive number
+    wma_window = 10
+    roc_length = 2  # has to be a positive number
     history_roc = []
     history_parabolic_trend = []
     history_hl2 = []
@@ -67,11 +69,12 @@ class MyStock:
         hl2 = self.gen_hl2(high_price, low_price)
         if hl2 != None:
             self.history_hl2.append(hl2)
+            self.history_wma.append(self.gen_wma())
 
         self.history_ohlc4.append(self.gen_ohlc4(
             open_price, high_price, low_price, closing_price))
 
-        pc = self.gen_roc(closing_price)
+        pc = self.gen_roc()
         if pc != None:
             self.history_roc.append(pc)
 
@@ -79,9 +82,9 @@ class MyStock:
             self.ParabolicTrend.next(high_price, low_price))
 
         self.history_tema_short.append(self.gen_exp_average(
-            self.history_price_close, self.tema_short))
+            self.history_ohlc4, self.tema_short))
         self.history_tema_long.append(self.gen_exp_average(
-            self.history_price_close, self.tema_long))
+            self.history_ohlc4, self.tema_long))
         self.history_tema_boundry.append(
             self.gen_exp_average(self.history_price_close, self.tema_boundry))
 
@@ -108,6 +111,14 @@ class MyStock:
             return self.history_sma[-2]
         return None
 
+    def gen_wma(self):
+        if len(self.history_hl2) > 0:
+            return TOMMICH_HELPER["get_weighted_moving_avg"](self.history_hl2, self.wma_window)
+        raise ValueError('self.history_hl2 can never be empty')
+
+    def get_wma(self):
+        return self.history_wma[-1]
+
     def gen_hl2(self, high, low):
         return TOMMICH_HELPER["get_hl2"](high, low)
 
@@ -117,9 +128,9 @@ class MyStock:
     def get_ohlc4(self):
         return self.history_ohlc4[-1]
 
-    def gen_roc(self, closing_price):
+    def gen_roc(self):
         roc = TOMMICH_HELPER["get_roc"](
-            closing_price, self.history_price_close, self.roc_length)
+            self.history_price_close, self.roc_length)
         # print("Past rate of change :", roc)
 
         return roc
@@ -128,6 +139,11 @@ class MyStock:
         if len(self.history_roc) >= abs(previous):
             return self.history_roc[previous]
         return None
+
+    def get_difference_roc(self):
+        if len(self.history_roc) > 2:
+            return self.history_roc[-1] - self.history_roc[-2]
+        return 0
 
     def get_previous_roc(self):
         if len(self.history_roc) > 1:
@@ -198,5 +214,25 @@ class MyStock:
         #     return 0
 
         return trend
+
+    def reset_all(self):
+        self.history_price_open = []
+        self.history_price_high = []
+        self.history_price_low = []
+        self.history_price_close = []
+        self.history_sma = []
+        self.history_roc = []
+        self.history_parabolic_trend = []
+        self.history_hl2 = []
+        self.history_ohlc4 = []
+        self.history_tema_short = []
+        self.history_tema_long = []
+        self.history_tema_boundry = []
+        self.history_trend_quality = []
+        self.history_reversal = []
+        self.history_wma = []
+
+    # def gen_trend_quality(self):
+    #     noise = self.correction_factor *
 
 # Test
