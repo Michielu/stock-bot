@@ -42,7 +42,7 @@ def get_roc(history_closing, roc_length):
 def get_hl2(high, low):
     if low == 0:
         return None
-    return round(high/low, 2)
+    return round((high+low)/2, 2)
 
 
 def get_triple_exp_average(data, window):
