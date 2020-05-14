@@ -104,9 +104,3 @@ TOMMICH_HELPER = {
     "get_triple_exp_average": get_triple_exp_average,
     "calc_trend_period": calc_trend_period
 }
-
-# Tests
-# print("hello")
-print("SMA: ", simple_moving_avg(data_set3, 3))
-# print(get_triple_exp_average(data_set2, 3))
-print("WMA:", get_weighted_moving_avg(data_set3, 5))
