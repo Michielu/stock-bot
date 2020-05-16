@@ -49,9 +49,9 @@ def get_hl2(high, low):
 def get_triple_exp_average(data, window):
     # data: array
     # 3 * ema1 - 3 * ema2 + ema3;
-    ea1 = calc_triple_exp_average(data, window)
-    ea2 = calc_triple_exp_average(ea1, window)
-    ea3 = calc_triple_exp_average(ea2, window)
+    ea1 = calc_exp_average(data, window)
+    ea2 = calc_exp_average(ea1, window)
+    ea3 = calc_exp_average(ea2, window)
 
     for i in range(len(data)):
         ea3[i] = 3*ea1[i] - 3*ea2[i] + ea3[i]
@@ -59,7 +59,7 @@ def get_triple_exp_average(data, window):
     return ea3
 
 
-def calc_triple_exp_average(data, window):
+def calc_exp_average(data, window):
     d = {'col1': data}
     df = pd.DataFrame(data=d)
     df["expAvg"] = df['col1'].ewm(span=window, adjust=True).mean()
@@ -86,13 +86,19 @@ def calc_trend_quality():
 def calc_trend_period(close, fast_length, slow_length):
     # Sign: Returns the algebraic sign of a number: 1 if the number is positive, 0 if zero and -1 if negative.
     # sign(ExpAverage(close, fastLength) - ExpAverage(close, slowLength))
-    fast_tp = calc_triple_exp_average(close[-fast_length:], fast_length)
-    slow_tp = calc_triple_exp_average(close[-slow_length:], slow_length)
+    fast_tp = calc_exp_average(close[-fast_length:], fast_length)
+    slow_tp = calc_exp_average(close[-slow_length:], slow_length)
     period = fast_tp[-1]-slow_tp[-1]
     if period >= 0:
         return 1
     else:
         return -1
+
+
+def find_last_valid(data, invalid=0):
+    if len(data) == 0:
+        return 0
+    return data[-1] if data[-1] != invalid else find_last_valid(data[:-1])
 
 
 TOMMICH_HELPER = {
@@ -101,5 +107,6 @@ TOMMICH_HELPER = {
     "get_roc": get_roc,
     "get_hl2": get_hl2,
     "get_triple_exp_average": get_triple_exp_average,
-    "calc_trend_period": calc_trend_period
+    "calc_trend_period": calc_trend_period,
+    "find_last_valid": find_last_valid
 }
