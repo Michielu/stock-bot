@@ -15,9 +15,9 @@ def simple_moving_avg(values, window):
 
 
 def get_sma_balance(values, window=-1):
-    new_window = window if window > len(values) else len(values)
+    new_window = min(window, len(values))
     weight = 1/new_window
-    return sum(values[new_window:])*weight
+    return sum(values[-new_window:])*weight
 
 
 def get_weighted_moving_avg(values, length):

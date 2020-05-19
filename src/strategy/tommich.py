@@ -27,7 +27,9 @@ class Tommich(IStrategy):
     __percentage_of_buying_power = .9  # changing this causes some problems
     __roc_amplifier = 3
     __diff_roc_value_buy = .004
-    __zero_line_TQ_buy = 6
+    # 5 is personal factor to offset difference in tq from thinkorswim
+    __trend_quality_buy = 6 / 5
+    __trend_quality_sell = 8 / 5
 
     def __init__(self, account, ticker):
         self.account = account
@@ -57,26 +59,30 @@ class Tommich(IStrategy):
             roc = self.my_stock.get_roc()  # +1
             difference_roc = self.my_stock.get_difference_roc()  # +1
             last_roc = self.my_stock.get_previous_roc()  # +1
-            wma = self.my_stock.get_wma()
+            wma = self.my_stock.get_wma()  # +1
+            trend_quality = self.my_stock.get_tq()
 
             # Old values
             # simple_moving_avg_long = self.my_stock.get_sma()  # SMALong
-            #last_simple_moving_avg = self.my_stock.get_previous_sma()
-            #parabolic_trend = self.my_stock.get_parabolic_trend()
-
-            # if TEMA_short == None or TEMA_long == None or TEMA_long_previous == None or difference_roc == None or TEMA_boundry == None or roc == None or TEMA_short_previous or TEMA_long_previous == None:
-            #     print("n", end="", flush=True)
-            # return None #TODO why do I have this None??? -- to not make rash decision?
+            # last_simple_moving_avg = self.my_stock.get_previous_sma()
+            # parabolic_trend = self.my_stock.get_parabolic_trend()
 
             if self.__buying_state == ParabolicState.CAN_BUY_ONLY:
                 # print("b", end="", flush=True)
-                if TEMA_short > TEMA_long and TEMA_short_previous <= TEMA_long_previous and TEMA_short <= TEMA_boundry and (roc >= (last_roc * self.__roc_amplifier)) and (difference_roc >= self.__diff_roc_value_buy or difference_roc <= -self.__diff_roc_value_buy):
+                if TEMA_short > TEMA_long and TEMA_short_previous <= TEMA_long_previous \
+                        and TEMA_short <= TEMA_boundry \
+                        and (roc >= (last_roc * self.__roc_amplifier)) \
+                        and (difference_roc >= self.__diff_roc_value_buy or difference_roc <= -self.__diff_roc_value_buy) \
+                        and trend_quality > -self.__trend_quality_buy:
                     # print("BOUGHT!!")
                     self.__buying_state = ParabolicState.CAN_SELL_ONLY
                     self.__buy(ticker, closing_price)
             elif self.__buying_state == ParabolicState.CAN_SELL_ONLY:
                 # print("s", end="", flush=True)
-                if (TEMA_short < TEMA_long and wma) or ((difference_roc >= self.__diff_roc_value_buy or difference_roc <= -self.__diff_roc_value_buy) and roc < last_roc):
+                if (TEMA_short < TEMA_long and wma) or \
+                    ((difference_roc >= self.__diff_roc_value_buy or difference_roc <= -self.__diff_roc_value_buy
+                      and roc < last_roc)) \
+                        or trend_quality > self.__trend_quality_sell:
                     # print("SOLD")
                     self.__buying_state = ParabolicState.CAN_BUY_ONLY
                     self.__sell(ticker, closing_price)
@@ -87,6 +93,7 @@ class Tommich(IStrategy):
         self.__last_closing_price = closing_price
 
         return self.account.get_account_value()
+        # return self.my_stock.get_tq()
 
     def __buy(self, ticker, price):
         buying_power = self.account.get_buying_power()

@@ -102,7 +102,7 @@ class MyStock:
         if len(self.history_price_close) < window:
             return None
 
-        return TOMMICH_HELPER["get_sma_balance"](self.history_price_close[-window:])
+        return TOMMICH_HELPER["get_sma_balance"](self.history_price_close[-window:], window)
 
     def get_sma(self):
         if len(self.history_sma) > 0:
@@ -199,39 +199,35 @@ class MyStock:
             cpc = 0
             trend = 0
         else:
-            # self.previous_trend if self.previous_trend != 0 else 1
-            using_trend = TOMMICH_HELPER["find_last_valid"](
-                self.history_previous_trend)
+
+            using_trend = 0 if len(
+                self.history_previous_trend) == 0 else self.history_previous_trend[-1]
 
             # cpc = TOMMICH_HELPER["find_last_valid"](
             #     self.history_previous_cpc) + self.history_price_close[-1] - prev_close
             prev_cpc = 0 if len(
                 self.history_previous_cpc) == 0 else self.history_previous_cpc[-1]
-            cpc = prev_cpc + \
-                self.history_price_close[-1] - prev_close
+
+            cpc = (prev_cpc +
+                   self.history_price_close[-1] - prev_close)  # Tested.. similair pattern, but different numbers
             # Tested self.history_price_close[-1] - prev_close
 
-            # print("V: ", using_trend, cpc, self.previous_cpc,
-            #   self.history_price_close[-1], prev_close)
-            # print("s", using_trend, (1-smf), cpc, smf)
+            # Tested, pattern kinda resembles actual. Values are off, but +/- and flow 80% close
             trend = using_trend * (1-smf) + cpc * smf
-            # print("Trend :", trend)
 
-        # self.history_trend_quality_diff.append(cpc - trend)
-        # print("TQ_DIFF", self.history_trend_quality_diff,
-            #   len(self.history_trend_quality_diff))
+        self.history_trend_quality_diff.append(abs(cpc - trend))
+
         noise = self.correction_factor * \
             TOMMICH_HELPER["get_sma_balance"](
-                self.history_trend_quality_diff, self.noise_length)
+                self.history_trend_quality_diff, self.noise_length)  # Tested.. around the same. Different because window is 250 and all the small differences
+
         self.history_previous_cpc.append(cpc)
         self.history_previous_trend.append(trend)
-        # if noise == 0:
-        #     return 0
-        print(cpc)
-        return cpc
+        if noise == 0:
+            return 0
+        return trend/noise  # tested.. roughly similair
 
     def get_tq(self):
-
         return self.history_trend_quality[-1] if len(self.history_trend_quality) > 0 else None
 
     def reset_all(self):
