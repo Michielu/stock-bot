@@ -7,7 +7,6 @@ data_set3 = [1, 1, 1, 1, 11, 22, 33, 444, 55]
 
 
 def simple_moving_avg(values, window):
-    # window = len(values)
     weights = np.repeat(1.0, window)/window
     # if window is 3: weights = [.33,.33,.33]
     smas = np.convolve(values, weights, 'valid')
@@ -65,22 +64,6 @@ def calc_exp_average(data, window):
     df["expAvg"] = df['col1'].ewm(span=window, adjust=True).mean()
 
     return df['expAvg'].values
-
-
-def calc_trend_quality():
-    # ThinkOrSwim's TrendQuality
-    # Don't change
-    trend_length = 4
-    correction_factor = 2
-
-    smf = 2 / (1 + trend_length)
-    # TODO store reversal in myStock and pass them in
-    # reversal = TrendPeriods(fast_length, slow_length)
-    # cpc = if isNaN(reversal[1]) then 0 else if reversal[1] != reversal then 0 else cpc[1] + close - close[1]
-    # trend = if isNaN(reversal[1]) then 0 else if reversal[1] != reversal then 0 else trend[1] * (1 - smf) + cpc * smf
-
-    # diff = AbsValue(cpc - trend)
-    # noise = correctionFactor * Average(diff, noiseLength)
 
 
 def calc_trend_period(close, fast_length, slow_length):

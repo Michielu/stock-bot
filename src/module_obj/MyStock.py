@@ -182,7 +182,6 @@ class MyStock:
         return TOMMICH_HELPER["calc_trend_period"](self.history_price_close, fast_l, slow_l)
 
     def get_reversal(self):
-        # If not TQ, don't need this
         return self.history_reversal[-1] if len(self.history_reversal) else None
 
     def gen_trend_quality(self):
@@ -195,16 +194,12 @@ class MyStock:
             self.history_price_close) < 2 else self.history_price_close[-2]
 
         if prev_reversal != -1 and prev_reversal != reversal:
-            print("in here?", prev_reversal, reversal)
             cpc = 0
             trend = 0
         else:
-
             using_trend = 0 if len(
                 self.history_previous_trend) == 0 else self.history_previous_trend[-1]
 
-            # cpc = TOMMICH_HELPER["find_last_valid"](
-            #     self.history_previous_cpc) + self.history_price_close[-1] - prev_close
             prev_cpc = 0 if len(
                 self.history_previous_cpc) == 0 else self.history_previous_cpc[-1]
 
@@ -246,8 +241,3 @@ class MyStock:
         self.history_trend_quality = []
         self.history_reversal = []
         self.history_wma = []
-
-    # def gen_trend_quality(self):
-    #     noise = self.correction_factor *
-
-# Test
